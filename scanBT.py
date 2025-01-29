@@ -3,6 +3,8 @@ import shlex
 import re
 import time
 import datetime
+import pexpect, sys
+from matplotlib import pyplot as plt
 
 
 """
@@ -24,38 +26,82 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-shellcmd = shlex.split("{   printf 'scan on\\n';     sleep 2;     printf5'devices\\n';     printf 'quit\\n'; } | bluetoothctl")
-shellcmd = "{   printf 'scan on\\n';     sleep 1;     printf 'quit\\n'; } | bluetoothctl"
+#shellcmd = shlex.split("{   printf 'scan on\\n';     sleep 2;     printf5'devices\\n';     printf 'quit\\n'; } | bluetoothctl")
 
 
 mac = "0C:19:F8:96:13:D2" #mac address of desired BLE decive
+mac = "80:7B:3E:27:69:CF" #mac address of desired BLE decive
+mac = "5C:F3:70:9C:02:DF"
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])') #regex for removing color coding before interpreting process output
 
 def BTscan_bluetoothctl():
     """Scan using bluetoothctl"""
-    while True:
-        try:
-            scan = subprocess.run(shellcmd, shell=True, stdout=subprocess.PIPE, check=True, text=True)
-            result = ansi_escape.sub('', scan.stdout) #remove color coding in output
+    
+    proc = pexpect.spawn('bluetoothctl', encoding='utf-8')
+    proc.expect(['bluetooth'])
+    proc.sendline('menu scan')
+    proc.sendline('duplicate-data on')
+    proc.sendline('back')
+    proc.sendline('scan on')
 
-            #Look for the interesting lines, not developed..
-            for line in result.split("\n"):
-                if "004c" in line:
-                    #print(line)
-                    pass
-                elif mac in line:
-                    print()
-                    print(bcolors.OKGREEN+line+bcolors.ENDC)
-                elif 'Perillyne' in line:
-                    print()
-                    print(bcolors.OKGREEN+line+bcolors.ENDC)
-            print("-",end="", flush=True)
+    def collect_data():
+        time = []; RSSI = []
+        while True:
+            try:
+                proc.expect(mac, timeout=None)
+                proc.expect('RSSI', timeout=1)
+                try:
+                    proc.before.split()[-1]
+                    continue
+                except IndexError:
+                    time.append(datetime.datetime.now())
+                    print('.', end='')
+                proc.expect('\\)')
+                RSSI.append(proc.before[proc.before.index('(')+1:])
+                sys.stdout.flush()
+            except KeyboardInterrupt: #bluetoothctl runs interactively, this avoids unnessecary error message when killing the process
+                print()
+                break        
+    
+        RSSI = [int(i) for i in RSSI]
+        start_time = time[0]
+        time = [t-start_time for t in time]
+        time = [t.seconds + t.microseconds for t in time]
+        plt.plot(time, RSSI, '*')
+        plt.show()
+
+    def find_close(threshold=-100, lookfor_mac = None):
+        macs = []
+        lasttime = datetime.datetime.now()
+        while True:
+            try:
+                proc.expect('RSSI', timeout=None)
+                try:
+                    mac = proc.before.split()[-1]
+                except IndexError:
+                    continue
+                proc.expect('\\)')
+                RSSI = int(proc.before[proc.before.index('(')+1:])
+
+                if RSSI >= threshold and ':' in mac:
+                    if mac == lookfor_mac or lookfor_mac==None:
+                        macs.append(mac)
+                        now = datetime.datetime.now()
+                        diff = now-lasttime
+                        print(mac, RSSI, diff)
+                        lasttime = now
+                        
+                sys.stdout.flush()
+            except KeyboardInterrupt: #bluetoothctl runs interactively, this avoids unnessecary error message when killing the process
+                print()
+                break
+
+    #stop chaning indentation python..
+    find_close(-100, lookfor_mac = mac)
+    #find_close(-60)
         
-
-        except KeyboardInterrupt: #bluetoothctl runs interactively, this avoids unnessecary error message when killing the process
-            exit()
-
-
+                
+            
 
 def BTscan_btmgmt():
     """Scan using btmgmt"""
@@ -82,8 +128,8 @@ def BTscan_btmgmt():
         exit()
         
     
-BTscan_btmgmt()
-
+#BTscan_btmgmt()
+BTscan_bluetoothctl()
 
 
 #the following seems to do the same as "bluetoothctl show":
