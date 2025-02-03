@@ -32,20 +32,9 @@ sudo hciconfig $BLE down
 # Turn on BLE
 sudo hciconfig $BLE up
 
-# Stop LE advertising
-sudo hciconfig $BLE noleadv
-
-# Start LE advertising (non-connectable)
-sudo hciconfig $BLE leadv 3
-
-# Turn scanning off (can sometimes affect advertising)
-sudo hciconfig $BLE noscan
-
 # Set the Beacon
 sudo hcitool -i $BLE cmd 0x08 0x0008 1f $Ad_Flags $Advertisement $Message
-sudo hcitool -i $BLE cmd 0x08 0x0006 03 00 04 00 03 00 00 00 00 00 00 00 00 07 00 #set advertisement frequency (min and max first 4 bytes) and non-connectable mode (5th byte)
+#sudo hcitool -i $BLE cmd 0x08 0x0008 1f 02 01 1a 1a ff 4c 00 02 15 e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0 00 00 00 00 c5 01
+#sudo hcitool -i $BLE cmd 0x08 0x0008 1F 02 01 1A 1B FF 18 01 BE AC E2 0A 39 F4 73 F5 4B C4 A1 2F 17 D1 AD 07 A9 61 11 11 22 33 C5 01
+sudo hcitool -i $BLE cmd 0x08 0x0006 A0 00 A0 00 03 00 00 00 00 00 00 00 00 07 00 #set advertisement frequency (min and max first 4 bytes) and non-connectable mode (5th byte)
 sudo hcitool -i $BLE cmd 0x08 0x000a 01
-
-#sudo hcitool -i $BLE cmd 0x08 0x0008 1e 02 01 1a 1a ff 4c 00 02 15 e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0 00 00 00 00 c5
-
-#echo -e advertise on | bluetoothctl

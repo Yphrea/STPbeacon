@@ -32,6 +32,7 @@ class bcolors:
 mac = "0C:19:F8:96:13:D2" #mac address of desired BLE decive
 mac = "80:7B:3E:27:69:CF" #mac address of desired BLE decive
 mac = "5C:F3:70:9C:02:DF"
+mac = "A0:A4:C5:EC:2A:AB"
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])') #regex for removing color coding before interpreting process output
 
 def BTscan_bluetoothctl():
