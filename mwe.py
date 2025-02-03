@@ -3,7 +3,8 @@ import pexpect
 import sys
 
 #this is the mac address of the beacon
-look_for_mac = "1C:1B:B5:77:54:10"
+#look_for_mac = "1C:1B:B5:77:54:10"
+look_for_mac = "A0:A4:C5:EC:2A:AB"
 
 def scan_for_beacon(look_for_mac):
     proc = pexpect.spawn('bluetoothctl', encoding='utf-8')
