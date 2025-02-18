@@ -6,6 +6,7 @@ import numpy as np
 
 """plotting of test data for quality evaluation"""
 
+text_box = dict(boxstyle='round', facecolor='whitesmoke', ec='black')
 
 def read_data_from_file(filename):
     """read data from file (collect with 'scan.py')"""
@@ -37,7 +38,6 @@ def read_data_from_file(filename):
 
         try:
             true_time = true_time - start_time
-            print(true_time)
         except TypeError:
             pass
         time_consecutive = [sum(time[:i+1]) for i in range(len(time))]
@@ -64,7 +64,9 @@ def panelplot_test_data(list_of_data_files, show=False, save=None, bin_time=Fals
         axes = axes.flatten()
     except AttributeError:
         axes = [axes]
-    
+
+    handles = [None, None]
+    labels = ['Evaluated', 'Facit']
     for i, data_file in enumerate(list_of_data_files):
         time, RSSI, true_time = read_data_from_file(data_file)
         if bin_time: # histogram over time between advertisements in sample data
@@ -74,21 +76,29 @@ def panelplot_test_data(list_of_data_files, show=False, save=None, bin_time=Fals
             axes[i].plot(time,RSSI,'*')
             ylim = axes[i].get_ylim()
             time_aux = np.arange(0, max(time), 0.05)
-            spl = make_smoothing_spline(time, RSSI, lam=None)
+            spl = make_smoothing_spline(time, RSSI, lam=10)
             spl_RSSI = spl(time_aux)
             i_spl_max = spl_RSSI.argmax(axis=0)
             axes[i].plot(time_aux, spl_RSSI, '-.')
-            axes[i].plot([time_aux[i_spl_max]]*2, ylim,'--k', label='evaluated')
-            print('diff in s:', true_time - time_aux[i_spl_max])
+            handles[0], = axes[i].plot([time_aux[i_spl_max]]*2, ylim,'--k')
+            axes[i].text(0.02,0.02,'diff in s: %5.2f'%(true_time - time_aux[i_spl_max]), transform=axes[i].transAxes, bbox=text_box)
+            axes[i].set_ylim(ylim)
             try:
-                #axes[i].plot(true_time, max(RSSI),'*')
-                axes[i].plot([true_time]*2, ylim,'-k', label='facit')
+                handles[1], = axes[i].plot([true_time]*2, ylim,'-k')
             except ValueError:
                 pass # If true_time is None, i.e. not registered
+        if i%width == 0:
+            axes[i].set_ylabel('RSSI')
+        if i >= width * (height-1):
+            axes[i].set_xlabel('time')
+        if i == 0:
+            axes[i].legend(handles, labels)
+    fig.set_size_inches(18.5, 10.5)
+    plt.subplots_adjust(left=0.05, right=0.98, bottom=0.05, top=0.98, wspace=0.05, hspace=0.05)
+        
     if save != None:
         plt.savefig(save, dpi=300)
     if show:
-        plt.legend()
         plt.show()
 
 

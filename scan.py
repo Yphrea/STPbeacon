@@ -13,9 +13,9 @@ interacting with bluetooth devices on linux."""
 #mac address of beacon to scan for
 #look_for_mac = "1C:1B:B5:77:54:10" #Patchouli
 #look_for_mac = "A0:A4:C5:EC:2A:AB" #Leyrien
-look_for_mac = "E4:A7:A0:A6:56:7A" #Juniper
+#look_for_mac = "E4:A7:A0:A6:56:7A" #Juniper
 #look_for_mac = "5C:F3:70:9C:02:DF" #dongle
-#look_for_mac = "cd:d7:e9:7e:31:9e".upper() #Nano 33 BLE
+look_for_mac = "cd:d7:e9:7e:31:9e".upper() #Nano 33 BLE
 
 def scan_for_beacon(look_for_mac):
     proc = pexpect.spawn('bluetoothctl', encoding='utf-8')
