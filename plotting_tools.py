@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from math import sqrt
-from scipy.interpolate import make_smoothing_spline
+from scipy.interpolate import make_smoothing_spline, sproot
 import numpy as np
 
 
@@ -83,6 +83,7 @@ def panelplot_test_data(list_of_data_files, show=False, save=None, bin_time=Fals
             handles[0], = axes[i].plot([time_aux[i_spl_max]]*2, ylim,'--k')
             axes[i].text(0.02,0.02,'diff in s: %5.2f'%(true_time - time_aux[i_spl_max]), transform=axes[i].transAxes, bbox=text_box)
             axes[i].set_ylim(ylim)
+            axes[i].grid(True)
             try:
                 handles[1], = axes[i].plot([true_time]*2, ylim,'-k')
             except ValueError:
@@ -104,16 +105,29 @@ def panelplot_test_data(list_of_data_files, show=False, save=None, bin_time=Fals
 
 #panelplot_test_data('test_data/noise/noise_Nano_32', show=True, save='noise_Nano_32.2.png')
 #panelplot_test_data(['test_data/noise/noise_Nano_32', 'test_data/noise/noise_Nano_40'], N=30, bin_time=True, show=True)
+
+# Data from desktop integrated BLE shipset (didn't try to check which) in home environment (less bluetooth disturbance)
 #panelplot_test_data(['test_data/walking_it2/juniper_a',
 #                     'test_data/walking_it2/juniper_b',
 #                     'test_data/walking_it2/juniper_c',
 #                     'test_data/walking_it2/juniper_d',
 #                     'test_data/walking_it2/juniper_e',
 #                     'test_data/walking_it2/juniper_f'], show=True)
-panelplot_test_data(['test_data/walking_it2/Nano_a',#],show=True)
-                     'test_data/walking_it2/Nano_b',
-                     'test_data/walking_it2/Nano_c',
-                     'test_data/walking_it2/Nano_d',
-                     'test_data/walking_it2/Nano_e',
-                     'test_data/walking_it2/Nano_f'], show=True)
+
+# Data from Arduino Nano 33 BLE  in office environment
+#panelplot_test_data(['test_data/walking_it2/Nano_a',#],show=True)
+#                     'test_data/walking_it2/Nano_b',
+#                     'test_data/walking_it2/Nano_c',
+#                     'test_data/walking_it2/Nano_d',
+#                     'test_data/walking_it2/Nano_e',
+#                     'test_data/walking_it2/Nano_f'], show=True, save='test_data_Nano.png')
+
+# Data from Nano taken whilst biking in parkinglot outside HiQ office, arduino was carried in backpack.
+# Dataset a-e are with backpack on back, f-k are with backpack on steering bar (front of bike)
+panelplot_test_data(['test_data/walking_it3/parkering_f', 
+                     'test_data/walking_it3/parkering_g',
+                     'test_data/walking_it3/parkering_h',
+                     'test_data/walking_it3/parkering_l',
+                     'test_data/walking_it3/parkering_j',
+                     'test_data/walking_it3/parkering_k'], show=True, save='test_data_parkering.png')
 
